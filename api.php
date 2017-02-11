@@ -1,10 +1,12 @@
 <?php
 function makeWaveform($filename){
-	if(!file_exists($filename.'.png')){
-		$cmd = 'sox '.$filename.' -c 1 -t wav - gain 15 | wav2png -o '.$filename.'.png  --foreground-color=2e4562ff --background-color=00000000 -w 800 /dev/stdin';
+	if(!file_exists('waveforms/'.$filename.'.png')){
+		$cmd = 'sox '.$filename.' -c 1 -t wav - gain 15 | wav2png -o waveforms/'.$filename.'.png  --foreground-color=2e4562ff --background-color=00000000 -w 800 /dev/stdin';
 		shell_exec($cmd);
+		#echo $cmd;
+		#echo "<br>";
 	}
-	return $filename.'.png';
+	return 'waveforms/'.$filename.'.png';
 }
 function createdAt($filename){
 	if($filename){
@@ -19,16 +21,17 @@ $playlist = array();
 $filelist = glob("done/*.mp3");
 rsort($filelist);
 foreach ($filelist as $filename) {
-	if(file_exists($filename.'.png')){
+	$poster = makeWaveform($filename);
+	#if(file_exists($filename)){
 		$title = createdAt($filename);
 		if(strtotime($title) > strtotime('-7 day')) {
 			$item = new StdClass();
 			$item->mp3 = $filename;
 			$item->title = $title;
-			$item->poster = makeWaveform($filename);
+			$item->poster = $poster;
 			$playlist[] = $item;
 			unset($item);
 		}
-	}
+	#}
 }
 echo json_encode($playlist);
